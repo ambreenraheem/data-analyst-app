@@ -1,0 +1,543 @@
+openapi: 3.0.3
+info:
+  title: Document Ingestion API
+  description: |
+    Financial document ingestion pipeline API for uploading PDF/Excel reports,
+    tracking processing status, and retrieving extraction results.
+
+    **Constitution Alignment**:
+    - Principle I: All responses include source references for extracted data
+    - Principle III: 7-year audit trail via access logging
+    - Principle V: Azure AD authentication required (not shown in spec)
+  version: 1.0.0
+  contact:
+    name: Financial Insight Team
+    email: support@company.com
+
+servers:
+  - url: https://finadvsr-func-prod.azurewebsites.net/api/v1
+    description: Production
+  - url: https://finadvsr-func-staging.azurewebsites.net/api/v1
+    description: Staging
+  - url: http://localhost:7071/api/v1
+    description: Local development
+
+tags:
+  - name: documents
+    description: Document upload and management
+  - name: status
+    description: Processing status tracking
+
+paths:
+  /documents/upload:
+    post:
+      summary: Upload financial document
+      description: |
+        Upload a PDF or Excel financial report for extraction. Returns immediately
+        with document ID and queues document for asynchronous processing.
+
+        **Acceptance Criteria** (from User Story 1):
+        - Accepts PDF files up to 50MB
+        - Accepts Excel files (.xlsx) up to 50MB
+        - Rejects unsupported formats with 400 error
+        - Returns unique document ID and status "queued"
+      tags:
+        - documents
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF or Excel file (max 50MB)
+            examples:
+              pdfUpload:
+                summary: Upload PDF financial report
+                value:
+                  file: <binary data>
+              excelUpload:
+                summary: Upload Excel spreadsheet
+                value:
+                  file: <binary data>
+      responses:
+        '202':
+          description: Document accepted and queued for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+              examples:
+                success:
+                  summary: Successful upload
+                  value:
+                    document_id: doc-abc123
+                    status: queued
+                    upload_timestamp: "2026-01-08T10:30:00Z"
+                    estimated_processing_time_minutes: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /documents/{document_id}/status:
+    get:
+      summary: Get document processing status
+      description: |
+        Retrieve current processing status for a document. Returns status,
+        progress information, and extraction results if completed.
+
+        **Acceptance Criteria** (from User Story 4):
+        - Returns "queued" with estimated time immediately after upload
+        - Returns "processing" with progress details during extraction
+        - Returns "completed" with extraction metrics when done
+        - Returns "failed" with error message and recommendations
+      tags:
+        - status
+      operationId: getDocumentStatus
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^doc-[a-z0-9]{6}$'
+          description: Unique document identifier from upload response
+          example: doc-abc123
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+              examples:
+                queued:
+                  summary: Document queued for processing
+                  value:
+                    document_id: doc-abc123
+                    status: queued
+                    progress: null
+                    estimated_completion_time: "2026-01-08T10:35:00Z"
+                processing:
+                  summary: Document currently processing
+                  value:
+                    document_id: doc-abc123
+                    status: processing
+                    progress:
+                      current_step: "Extracting tables"
+                      tables_extracted: 3
+                      total_tables_estimated: 5
+                      percent_complete: 60
+                    estimated_completion_time: "2026-01-08T10:33:00Z"
+                completed:
+                  summary: Extraction completed successfully
+                  value:
+                    document_id: doc-abc123
+                    status: completed
+                    completion_timestamp: "2026-01-08T10:35:00Z"
+                    extraction_summary:
+                      ocr_confidence: 0.92
+                      metrics_extracted: 42
+                      validation_status: passed
+                      warnings: []
+                failed:
+                  summary: Extraction failed
+                  value:
+                    document_id: doc-abc123
+                    status: failed
+                    error_message: "OCR timeout after 10 minutes"
+                    recommendations:
+                      - "Try uploading a smaller document"
+                      - "Verify document is not corrupted"
+                      - "Contact support if issue persists"
+                    retry_available: true
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /documents/{document_id}/results:
+    get:
+      summary: Get extraction results
+      description: |
+        Retrieve detailed extraction results including all financial metrics
+        with source references. Only available after status is "completed".
+
+        **Constitution Alignment**:
+        - Principle I: Every metric includes source reference (document, page, cell)
+      tags:
+        - documents
+      operationId: getExtractionResults
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: doc-abc123
+      responses:
+        '200':
+          description: Extraction results retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionResultsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Document processing not yet completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: PROCESSING_NOT_COMPLETE
+                  message: "Document is still processing. Check status endpoint."
+
+  /documents/{document_id}/retry:
+    post:
+      summary: Retry failed ingestion
+      description: |
+        Retry processing for a failed document without re-uploading. Supports
+        adjusting OCR parameters for low-quality scans.
+
+        **Acceptance Criteria** (from User Story 5):
+        - Re-processes document without requiring re-upload
+        - Supports enhanced OCR mode for low-quality documents
+      tags:
+        - documents
+      operationId: retryIngestion
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: doc-abc123
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enhanced_ocr:
+                  type: boolean
+                  description: Use enhanced OCR mode for low-quality scans
+                  default: false
+      responses:
+        '202':
+          description: Retry queued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: Retry not allowed (document not in failed status)
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    UploadResponse:
+      type: object
+      required:
+        - document_id
+        - status
+        - upload_timestamp
+      properties:
+        document_id:
+          type: string
+          description: Unique document identifier
+          pattern: '^doc-[a-z0-9]{6}$'
+          example: doc-abc123
+        status:
+          type: string
+          enum: [queued]
+          description: Initial status (always "queued" on upload)
+        upload_timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of upload
+          example: "2026-01-08T10:30:00Z"
+        estimated_processing_time_minutes:
+          type: integer
+          description: Estimated time until completion
+          example: 5
+
+    StatusResponse:
+      type: object
+      required:
+        - document_id
+        - status
+      properties:
+        document_id:
+          type: string
+          example: doc-abc123
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        progress:
+          $ref: '#/components/schemas/ProcessingProgress'
+        completion_timestamp:
+          type: string
+          format: date-time
+          description: When processing completed (if status=completed)
+        extraction_summary:
+          $ref: '#/components/schemas/ExtractionSummary'
+        error_message:
+          type: string
+          description: Error details (if status=failed)
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Recommended actions (if status=failed)
+        retry_available:
+          type: boolean
+          description: Whether retry is available
+
+    ProcessingProgress:
+      type: object
+      properties:
+        current_step:
+          type: string
+          example: "Extracting tables"
+        tables_extracted:
+          type: integer
+          example: 3
+        total_tables_estimated:
+          type: integer
+          example: 5
+        percent_complete:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 60
+
+    ExtractionSummary:
+      type: object
+      required:
+        - ocr_confidence
+        - metrics_extracted
+        - validation_status
+      properties:
+        ocr_confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Overall OCR confidence score
+          example: 0.92
+        metrics_extracted:
+          type: integer
+          description: Number of financial metrics extracted
+          example: 42
+        validation_status:
+          type: string
+          enum: [passed, flagged, failed]
+          description: Data validation result
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Validation warnings (if any)
+          example: ["Low OCR confidence on page 12: 0.68"]
+
+    ExtractionResultsResponse:
+      type: object
+      required:
+        - document_id
+        - extraction_timestamp
+        - metrics
+      properties:
+        document_id:
+          type: string
+          example: doc-abc123
+        extraction_timestamp:
+          type: string
+          format: date-time
+        overall_ocr_confidence:
+          type: number
+          format: float
+          example: 0.92
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialMetric'
+
+    FinancialMetric:
+      type: object
+      required:
+        - id
+        - metric_name
+        - value
+        - source_reference
+      properties:
+        id:
+          type: string
+          example: metric-xyz789
+        metric_name:
+          type: string
+          example: revenue
+        value:
+          type: number
+          format: double
+          example: 10000000.00
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: USD
+        reporting_period:
+          type: string
+          example: Q4 2025
+        confidence_score:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          example: 0.95
+        source_reference:
+          $ref: '#/components/schemas/SourceReference'
+
+    SourceReference:
+      type: object
+      required:
+        - document_name
+      properties:
+        document_name:
+          type: string
+          description: Original filename
+          example: Q4_2025_Financial_Report.pdf
+        page_number:
+          type: integer
+          description: Page number (for PDF)
+          example: 12
+        table_id:
+          type: string
+          description: Table identifier
+          example: table-3
+        row_index:
+          type: integer
+          example: 2
+        column_index:
+          type: integer
+          example: 1
+        cell_reference:
+          type: string
+          description: Excel cell reference (for Excel files)
+          example: B34
+        bounding_box:
+          $ref: '#/components/schemas/BoundingBox'
+
+    BoundingBox:
+      type: object
+      properties:
+        x:
+          type: number
+          format: float
+        y:
+          type: number
+          format: float
+        width:
+          type: number
+          format: float
+        height:
+          type: number
+          format: float
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: UNSUPPORTED_FORMAT
+            message:
+              type: string
+              example: "Unsupported file format. Please upload PDF or Excel files only."
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unsupportedFormat:
+              value:
+                error:
+                  code: UNSUPPORTED_FORMAT
+                  message: "Unsupported file format. Please upload PDF or Excel files only."
+            invalidFileSize:
+              value:
+                error:
+                  code: FILE_TOO_SMALL
+                  message: "File is empty or corrupted."
+
+    PayloadTooLarge:
+      description: File exceeds 50MB limit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: FILE_TOO_LARGE
+              message: "File exceeds maximum size of 50MB. Please split the document or compress images."
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: DOCUMENT_NOT_FOUND
+              message: "Document not found. Please verify the document ID."
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: "An unexpected error occurred. Please try again or contact support."
+
+  securitySchemes:
+    AzureAD:
+      type: oauth2
+      description: Azure Active Directory OAuth2 authentication
+      flows:
+        implicit:
+          authorizationUrl: https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/authorize
+          scopes:
+            api://financial-advisor-agent/Documents.Upload: Upload documents
+            api://financial-advisor-agent/Documents.Read: Read document status and results
+
+security:
+  - AzureAD:
+      - api://financial-advisor-agent/Documents.Upload
+      - api://financial-advisor-agent/Documents.Read
