@@ -1,0 +1,298 @@
+{
+  "sample_income_statement": {
+    "document_id": "doc-sample-001",
+    "document_type": "pdf",
+    "file_name": "sample_income_statement.pdf",
+    "extraction_summary": {
+      "ocr_confidence": 0.95,
+      "metrics_extracted": 11,
+      "validation_status": "passed"
+    },
+    "metrics": [
+      {
+        "metric_name": "Total Revenue",
+        "value": 15750000.0,
+        "metric_type": "revenue",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.96,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B3",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Cost of Goods Sold",
+        "value": 6300000.0,
+        "metric_type": "cogs",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.95,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B4",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Gross Profit",
+        "value": 9450000.0,
+        "metric_type": "gross_profit",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.96,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B5",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Operating Expenses",
+        "value": 5500000.0,
+        "metric_type": "operating_expenses",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.94,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B6",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "EBITDA",
+        "value": 3950000.0,
+        "metric_type": "ebitda",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.95,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B7",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Depreciation & Amortization",
+        "value": 850000.0,
+        "metric_type": "depreciation_amortization",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.93,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B8",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Operating Income",
+        "value": 3100000.0,
+        "metric_type": "operating_income",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.96,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B9",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Interest Expense",
+        "value": 200000.0,
+        "metric_type": "interest_expense",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.94,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B10",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Tax Expense",
+        "value": 580000.0,
+        "metric_type": "tax_expense",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.95,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B11",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Net Income",
+        "value": 2320000.0,
+        "metric_type": "net_income",
+        "period": "Q4 2024",
+        "currency": "USD",
+        "confidence": 0.96,
+        "source_reference": {
+          "document_name": "sample_income_statement.pdf",
+          "page_number": 1,
+          "table_id": "table_1",
+          "cell_reference": "B12",
+          "bounding_box": null
+        }
+      }
+    ],
+    "validation_results": {
+      "completeness": {
+        "status": "passed",
+        "required_metrics_present": ["revenue", "net_income", "operating_expenses"],
+        "missing_metrics": []
+      },
+      "range_validation": {
+        "status": "passed",
+        "issues": []
+      },
+      "confidence_validation": {
+        "status": "passed",
+        "average_confidence": 0.95,
+        "low_confidence_metrics": []
+      }
+    }
+  },
+  "sample_excel_report": {
+    "document_id": "doc-sample-002",
+    "document_type": "xlsx",
+    "file_name": "sample_excel_report.xlsx",
+    "extraction_summary": {
+      "ocr_confidence": 1.0,
+      "metrics_extracted": 6,
+      "validation_status": "passed"
+    },
+    "metrics": [
+      {
+        "metric_name": "Revenue",
+        "value": 42500000.0,
+        "metric_type": "revenue",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B3",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "COGS",
+        "value": 25500000.0,
+        "metric_type": "cogs",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B4",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Gross Profit",
+        "value": 17000000.0,
+        "metric_type": "gross_profit",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B5",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Operating Expenses",
+        "value": 12000000.0,
+        "metric_type": "operating_expenses",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B6",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Operating Income",
+        "value": 5000000.0,
+        "metric_type": "operating_income",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B7",
+          "bounding_box": null
+        }
+      },
+      {
+        "metric_name": "Net Income",
+        "value": 3400000.0,
+        "metric_type": "net_income",
+        "period": "FY 2024",
+        "currency": "USD",
+        "confidence": 1.0,
+        "source_reference": {
+          "document_name": "sample_excel_report.xlsx",
+          "page_number": null,
+          "sheet_name": "Income Statement",
+          "cell_reference": "B8",
+          "bounding_box": null
+        }
+      }
+    ],
+    "validation_results": {
+      "completeness": {
+        "status": "passed",
+        "required_metrics_present": ["revenue", "net_income", "operating_expenses"],
+        "missing_metrics": []
+      },
+      "range_validation": {
+        "status": "passed",
+        "issues": []
+      },
+      "confidence_validation": {
+        "status": "passed",
+        "average_confidence": 1.0,
+        "low_confidence_metrics": []
+      }
+    }
+  }
+}
