@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Azure Functions
+.python_packages/
+__blobstorage__/
+__queuestorage__/
+__azurite_db*__.json
+.python_version
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+local.settings.json
+*.secret.*
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+
+# Distribution / packaging
+.pytype/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# Azure
+.azure/

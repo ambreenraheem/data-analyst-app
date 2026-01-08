@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "financial-insight-risk-advisor"
+version = "0.1.0"
+description = "Document Ingestion Pipeline for Financial Insight & Risk Advisor Agent"
+authors = ["Your Organization"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+azure-functions = "^1.18.0"
+azure-ai-formrecognizer = "^3.3.2"
+azure-storage-blob = "^12.19.0"
+azure-cosmos = "^4.5.1"
+azure-servicebus = "^7.11.4"
+azure-identity = "^1.15.0"
+azure-keyvault-secrets = "^4.7.0"
+azure-data-tables = "^12.4.0"
+pydantic = "^2.5.0"
+openpyxl = "^3.1.2"
+pandas = "^2.1.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-asyncio = "^0.23.3"
+pytest-mock = "^3.12.0"
+pytest-cov = "^4.1.0"
+black = "^24.1.0"
+ruff = "^0.1.14"
+mypy = "^1.8.0"
+bandit = "^1.7.6"
+safety = "^3.0.1"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --cov=src --cov-report=html --cov-report=term-missing"
+testpaths = [
+    "tests",
+]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

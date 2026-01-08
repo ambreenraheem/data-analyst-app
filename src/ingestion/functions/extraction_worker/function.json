@@ -1,0 +1,14 @@
+{
+  "scriptFile": "../extraction_worker.py",
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "extraction-queue",
+      "connection": "SERVICE_BUS_CONNECTION",
+      "cardinality": "one",
+      "isSessionsEnabled": false
+    }
+  ]
+}
