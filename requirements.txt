@@ -14,4 +14,4 @@ azure-data-tables==12.4.0
 # Data processing
 pydantic==2.5.0
 openpyxl==3.1.2
-pandas==2.1.4
+pandas>=2.2.0
