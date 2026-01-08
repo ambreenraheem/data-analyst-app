@@ -2,16 +2,16 @@
 # Use `poetry export -f requirements.txt --output requirements.txt --without-hashes` to regenerate
 
 # Core Azure dependencies
-azure-functions==1.18.0
-azure-ai-formrecognizer==3.3.2
-azure-storage-blob==12.19.0
-azure-cosmos==4.5.1
-azure-servicebus==7.11.4
-azure-identity==1.15.0
-azure-keyvault-secrets==4.7.0
-azure-data-tables==12.4.0
+azure-functions==1.24.0
+azure-ai-formrecognizer==3.3.3
+azure-storage-blob==12.28.0
+azure-cosmos==4.14.3
+azure-servicebus==7.14.3
+azure-identity==1.25.1
+azure-keyvault-secrets==4.10.0
+azure-data-tables==12.7.0
 
 # Data processing
-pydantic==2.5.0
-openpyxl==3.1.2
-pandas>=2.2.0
+pydantic==2.12.5
+openpyxl==3.1.5
+pandas==2.3.3
